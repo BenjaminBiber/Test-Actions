@@ -1,0 +1,27 @@
+name: Check for TODOs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-todos:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Search for TODOs
+      run: |
+        # Find all TODOs in the codebase, except those inside quotes
+        grep -r --exclude-dir={.git,node_modules} -n '\bTODO\b' . | grep -v '".*TODO.*"' || echo "No TODOs found"
+
+    - name: Fail if TODOs are found
+      if: ${{ failure() }}
+      run: exit 1
+      continue-on-error: false
