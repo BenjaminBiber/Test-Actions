@@ -1,27 +1,14 @@
-name: Check for TODOs
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
+name: TODO workflow
+on: [push, pull_request]
 jobs:
-  check-todos:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Search for TODOs
-      run: |
-        # Find all TODOs in the codebase, except those inside quotes
-        grep -r --exclude-dir={.git,node_modules} -n '\bTODO\b' . | grep -v '".*TODO.*"' || echo "No TODOs found"
-
-    - name: Fail if TODOs are found
-      if: ${{ failure() }}
-      run: exit 1
-      continue-on-error: false
+    - uses: actions/checkout@master
+    - name: Run tdg-github-action
+      uses: ribtoks/tdg-github-action@master
+      with:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+        SHA: ${{ github.sha }}
+        REF: ${{ github.ref }}
